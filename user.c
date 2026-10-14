@@ -63,7 +63,7 @@ void printUser(struct User* user) {
 
 
 void generateDigest(struct Digest* digest, struct User* User) {
-    unsigned char* result = SSHA((unsigned char*)User, STRUCT_SIZE + 1); // Logical error: incorrect size
+    unsigned char* result = SSHA((unsigned char*)User, STRUCT_SIZE); // Logical error: incorrect size/fixed?
     digest->hash0 = result[0];
     digest->hash1 = result[1];
     digest->hash2 = result[2];
@@ -71,51 +71,42 @@ void generateDigest(struct Digest* digest, struct User* User) {
     digest->hash4 = result[4];
 }
 void verify(struct User* curr) {
-    int height = 2;
+    int height = 1;
 
     printf("******** Verifying Log *********\n\n");
 
     struct Block* prev = NULL;
-    if (curr != NULL) {
-        prev = curr; // Logical error: incorrect initialization
+    if (curr == NULL) {
+        printf("Log is empty. Nothing to verify\n");
+        return;
     }
 
-    printf("User 1, impossible to verify\n");
-    printf("\t%-20s", "User Data:");
-    printUser(curr);
-    printf("\n");
+        //printf("User 1, impossible to verify\n");
+        //printf("\t%-20s", "User Data:");
+        //printUser(curr);
+        //printf("\n");
 
-    while (prev) {
-        unsigned char* computedHash = NULL;
-
-        if (prev != NULL) {
-            struct Digest prev_digest_computed;
-            generateDigest(&prev_digest_computed, curr); // Logical error: incorrect node
-
-            if (digest_equal(prev_digest_computed, curr->hash)) {
-                printf("User %d passed\n", height);
-                printf("\t%-20s", "User Data:");
-                printUser(curr);
-                printf("\t%-20s", "Saved Hash:");
-                printDigest(curr->hash);
-                printf("\t%-20s", "Calculated Hash:");
-                printDigest(prev_digest_computed);
-                printf("\n\n");
-            }
-            else {
-                printf("User %d failed\n", height);
-                printf("\t%-20s", "User Data:");
-                printUser(curr);
-                printf("\t%-20s", "Saved Hash:");
-                printDigest(curr->hash);
-                printf("\t%-20s", "Calculated Hash:");
-                printDigest(prev_digest_computed);
-                printf("\n\n");
-                return;
-            }
+    while (curr->next != NULL) {
+        //unsigned char* computedHash = NULL;
+        struct Digest computed;
+        generateDigest(&computed, curr->next);
+        printf("User %d: ", height);
+        if (!digest_equal(computed, curr->hash)) {
+            printf("FAILED\n");
+            printf("Saved hash:       ");
+            printDigest(curr->hash);
+            printf("Calcualted hash: ");
+            printDigest(computed);
+            printf("\n");
+            return;
         }
-        curr = prev; // Logical error: incorrect traversal
-        prev = curr->next;
+        printf("PASSED\n");
+        printf("Saved hash:       ");
+        printDigest(curr->hash);
+        printf("Calcualted hash: ");
+        printDigest(computed);
+        printf("\n");
+        curr = curr->next; // Logical error: incorrect traversal/FIXED
         height++;
     }
 

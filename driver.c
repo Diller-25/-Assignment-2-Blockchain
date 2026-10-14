@@ -4,12 +4,14 @@
 
 
 int main(void) {
-	struct user * head=NULL;
+	struct User * head=NULL;
 	head = add(head, "rob");
 	head = add(head, "hanif");
 	head = add(head, "gahyun");
 	head = add(head, "matt");
 	head = add(head, "sumita");
 	head = add(head, "james");
+
+	printLog(head);
 	verify(head);
 }
