@@ -41,6 +41,42 @@ int digest_equal(struct Digest digest1, struct Digest digest2) {
     
 }
 
+unsigned char* SSHA2(const unsigned char* msg, size_t length) {
+    unsigned char A = 56, B = 99, C = 102, D = 67, E = 76;
+
+    for (size_t i = 0; i < length; i++) {
+        for (int round = 0; round < 8; round++) {
+            unsigned char old_A = A;
+            unsigned char old_B = B;
+
+            A = A ^ (B >> 2);
+            B = B ^ (C >> 1);
+            C = C + ((D & E) ^ A);
+            D = D + ((B & C) ^ E);
+            E = E + msg[i];
+
+            A = A + E;
+            B = B + old_A;
+            C = C + old_B;
+        }
+    }
+
+    unsigned char* digest =
+        (unsigned char*)malloc(DIGEST_SIZE * sizeof(unsigned char));
+
+    if (digest == NULL) {
+        return NULL;
+    }
+
+    digest[0] = A;
+    digest[1] = B;
+    digest[2] = C;
+    digest[3] = D;
+    digest[4] = E;
+
+    return digest;
+}
+
 void printDigest(struct Digest digest) {
     printf("%d %d %d %d %d\n", digest.hash0, digest.hash1, digest.hash2, digest.hash3, digest.hash4);
 }
